@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>ClickHouse Query Results</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
+
+		h2 {
+			color: #333;
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 80%;
+			margin: 20px auto;
+		}
+
+		th,
+		td {
+			border: 1px solid #333;
+			padding: 8px;
+			text-align: center;
+		}
+
+		th {
+			background-color: #333;
+			color: #fff;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+
+		#reloadButton {
+			display: inline-block;
+			background-color: #0074d9;
+			color: #fff;
+			border: none;
+			padding: 10px 20px;
+			cursor: pointer;
+			margin: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>Query Results:</h2>
+	<form action="/GetResult" method="">
+		<button type="submit" id="reloadButton">Reload</button>
+	</form>
+	<a href="/GetResult?hidden=Full%20Details">View All Campaigns</a><br><br>
+	<table>
+		<tr>
+			<th>CAMPAIGN ID</th>
+			<th>OPEN COUNT</th>
+		</tr>
+		{{range .}}
+		<tr>
+			<td>{{.CampaignId}}</td>
+			<td>{{.Count}}</td>
+		</tr>
+		{{end}}
+	</table>
+
+</body>
+
+</html>

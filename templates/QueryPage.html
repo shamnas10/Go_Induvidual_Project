@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Query Form</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
+
+		form {
+			margin: 20px;
+		}
+
+		input[type="text"] {
+			width: 300px;
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+		button {
+			padding: 10px 20px;
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+	</style>
+</head>
+
+<body>
+	<form action="/GetResult" method="POST">
+
+		<h2>List campaigns with the least opens in the last 90 days</h2>
+		<button type="submit">Execute</button>
+	</form>
+</body>
+
+</html>
