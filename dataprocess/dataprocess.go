@@ -21,6 +21,7 @@ func ConsumeContactActivitiesInKafka(db *sql.DB) {
 		return // Return to exit the function in case of an error
 	}
 	topic2 := os.Getenv("KAFKA_TOPIC2")
+	table := os.Getenv("MYSQL_TABLE2")
 	consumer, partitionConsumer, err := config.InitializeKafkaConsumer(topic2)
 	if err != nil {
 		logs.Logger.Error("Error initializing Kafka consumer", err)
@@ -44,7 +45,7 @@ func ConsumeContactActivitiesInKafka(db *sql.DB) {
 			columns := []string{"ContactsID", "CampaignID", "ActivityType", "ActivityDate"}
 
 			// Insert the data into the MySQL table
-			count, err := services.InsertData(db, "ContactActivity", data, columns)
+			count, err := services.InsertData(db, table, data, columns)
 			if err != nil {
 				logs.Logger.Error("Error inserting data into MySQL", err)
 			} else {
@@ -62,6 +63,7 @@ func ConsumeContactsInKafka(db *sql.DB) {
 		return // Return to exit the function in case of an error
 	}
 	topic2 := os.Getenv("KAFKA_TOPIC1")
+	table := os.Getenv("MYSQL_TABLE1")
 	consumer, partitionConsumer, err := config.InitializeKafkaConsumer(topic2)
 	if err != nil {
 		logs.Logger.Error("Error initializing Kafka consumer", err)
@@ -87,10 +89,12 @@ func ConsumeContactsInKafka(db *sql.DB) {
 				continue
 			}
 			contactsbatch = append(contactsbatch, data)
+
 			columns := []string{"ID", "Name", "Email", "Details", "Status"}
 			if len(contactsbatch) >= 100 {
+
 				// Insert the data into the MySQL table
-				count, err := services.InsertData(db, "Contacts", contactsbatch, columns)
+				count, err := services.InsertData(db, table, contactsbatch, columns)
 				contactsbatch = nil
 				if err != nil {
 					logs.Logger.Error("Error inserting data into MySQL", err)

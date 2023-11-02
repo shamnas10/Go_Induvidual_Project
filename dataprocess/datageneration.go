@@ -189,7 +189,6 @@ func GenerateActivity(count int, contact types.Contacts, id string) {
 		} else {
 			temp = 1
 		}
-		// fmt.Fprintf(myfile, "Generated ID: %d\n", id)
 
 		for k := temp; k <= actvt; k++ {
 			activityType := k
@@ -198,7 +197,6 @@ func GenerateActivity(count int, contact types.Contacts, id string) {
 
 				activityDate, err = time.Parse("2006-01-02", dateStr)
 				if err != nil {
-					// Handle the error, e.g., log or return a default value
 					fmt.Println("Error parsing date:", err)
 				}
 			} else {

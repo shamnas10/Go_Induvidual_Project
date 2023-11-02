@@ -40,7 +40,7 @@ func ConnectDatabase(driverName string) (*sql.DB, error) {
 }
 
 func loadMySQL() (*sql.DB, error) {
-	if err := godotenv.Load("/home/shamnas/Documents/test22/.env"); err != nil {
+	if err := godotenv.Load("/home/shamnas/Documents/test24/.env"); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +67,7 @@ func loadMySQL() (*sql.DB, error) {
 
 // LoadClickhouse loads ClickHouse configuration from environment variables and returns a database connection.
 func loadClickhouse() (*sql.DB, error) {
-	if err := godotenv.Load("/home/shamnas/Documents/test20/.env"); err != nil {
+	if err := godotenv.Load("/home/shamnas/Documents/test24/.env"); err != nil {
 		return nil, err
 	}
 

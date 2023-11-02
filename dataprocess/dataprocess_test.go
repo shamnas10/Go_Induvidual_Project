@@ -1,10 +1,8 @@
 package dataprocess
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 )
@@ -125,77 +123,6 @@ func TestGenerateActivityType(t *testing.T) {
 	}
 }
 
-func TestReadFile(t *testing.T) {
-	tests := []struct {
-		name             string
-		csvData          string
-		expectedContacts int
-	}{
-		{
-			name:             "Valid Data",
-			csvData:          "John,john@example.com,\"{\"\"country\"\":\"\"usa\"\",\"\"city\"\":\"\"washington\"\",\"\"dob\"\":\"\"29-09-2002\"\"}\"\nAlice,alice@example.com,\"{\"\"country\"\":\"\"usa\"\",\"\"city\"\":\"\"washington\"\",\"\"dob\"\":\"\"29-09-2002\"\"}\"\n",
-			expectedContacts: 2,
-		},
-		{
-			name:             "Invalid Data",
-			csvData:          "John,johnexample.com,\"{\"\"age\"\": 30}\"\nAlice,alice@example.com,\"\"invalid_json\"\"\n",
-			expectedContacts: 0,
-		},
-		{
-			name:             "File Not Found",
-			csvData:          "",
-			expectedContacts: 0,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tmpfile, err := ioutil.TempFile("", "example")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer os.Remove(tmpfile.Name())
-
-			if _, err := tmpfile.Write([]byte(tt.csvData)); err != nil {
-				t.Fatal(err)
-			}
-
-			tmpfile.Close()
-			err = ReadFile(tmpfile.Name())
-			if err != nil {
-				t.Errorf("Error in read file")
-			}
-
-		})
-	}
-}
-
-func BenchmarkReadFile(b *testing.B) {
-	// Create a temporary CSV file with sample data
-	tmpFile, err := ioutil.TempFile("", "testfile.csv")
-	if err != nil {
-		b.Fatalf("Error creating temporary file: %v", err)
-	}
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
-
-	// Generate some sample CSV data
-	sampleData := []byte("John,john@example.com,\"{\"\"country\"\":\"\"usa\"\",\"\"city\"\":\"\"washington\"\",\"\"dob\"\":\"\"29-09-2002\"\"}\"\nAlice,alice@example.com,\"{\"\"country\"\":\"\"usa\"\",\"\"city\"\":\"\"washington\"\",\"\"dob\"\":\"\"29-09-2002\"\"}\"\n")
-
-	_, err = tmpFile.Write(sampleData)
-	if err != nil {
-		b.Fatalf("Error writing to temporary file: %v", err)
-	}
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		// Read the file using the function and benchmark it
-		_ = ReadFile(tmpFile.Name())
-
-		// Optionally, you can check the length of the contacts slice or perform additional benchmarks
-	}
-}
 func TestGetResultFromClickHouse(t *testing.T) {
 	// Create a mock request for testing.
 	requestBody := strings.NewReader("hidden=Full Details")

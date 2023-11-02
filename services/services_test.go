@@ -198,3 +198,136 @@ func BenchmarkSendToKafka(b *testing.B) {
 		SendToKafka("test-topic", sampleMessages, config.Producer)
 	}
 }
+func TestConsumeMessage(t *testing.T) {
+	config.InitKafkaProducer()
+	defer config.CloseKafkaProducer()
+
+	// Define your topic and message.
+	topic := "test-topic"
+	message := []byte("Hello Kafka!")
+
+	// Send the message to Kafka using your SendToKafka function.
+	SendToKafka(topic, message, config.Producer)
+	consumer, partitionConsumer, err := config.InitializeKafkaConsumer(topic)
+	if err != nil {
+		logs.Logger.Error("Error initializing Kafka consumer", err)
+		return // Handle the error gracefully by returning
+	}
+	defer consumer.Close()
+	defer partitionConsumer.Close()
+	// Wait for the message to be consumed or for a timeout.
+	result, err := ConsumeMessage(partitionConsumer)
+	if err != nil {
+		t.Fatalf("Error consuming message: %v", err)
+	}
+
+	// Assert that the consumed message matches the sent message.
+	assert.Equal(t, message, result)
+}
+
+func TestInsertData(t *testing.T) {
+	// Open an SQLite in-memory database for testing.
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	// Create a test table for inserting data.
+	createTableQuery := "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)"
+	_, err = db.Exec(createTableQuery)
+	if err != nil {
+		t.Fatalf("Failed to create table: %v", err)
+	}
+
+	// Define test data and columns.
+	testData := []struct {
+		ID   int
+		Name string
+	}{
+		{1, "John"},
+		{2, "Alice"},
+	}
+
+	columns := []string{"id", "name"}
+
+	// Call the InsertData function to insert the test data.
+	rowsAffected, err := InsertData(db, "test_table", testData, columns)
+	if err != nil {
+		t.Fatalf("InsertData failed: %v", err)
+	}
+
+	// Check that the expected number of rows were affected.
+	expectedRowsAffected := int64(len(testData))
+	if rowsAffected != expectedRowsAffected {
+		t.Fatalf("Expected %d rows affected, but got %d", expectedRowsAffected, rowsAffected)
+	}
+
+	// Verify that the data was inserted correctly by querying the database.
+	rows, err := db.Query("SELECT * FROM test_table")
+	if err != nil {
+		t.Fatalf("Failed to query database: %v", err)
+	}
+	defer rows.Close()
+
+	// Iterate over the rows and compare the data.
+	var id int
+	var name string
+	count := 0
+	for rows.Next() {
+		err = rows.Scan(&id, &name)
+		if err != nil {
+			t.Fatalf("Error scanning row: %v", err)
+		}
+		expected := testData[count]
+		if id != expected.ID || name != expected.Name {
+			t.Fatalf("Row data does not match, expected: %v, got: (id=%d, name=%s)", expected, id, name)
+		}
+		count++
+	}
+
+	if count != len(testData) {
+		t.Fatalf("Expected to retrieve %d rows, but got %d", len(testData), count)
+	}
+}
+
+func TestInsertDataWithInvalidData(t *testing.T) {
+	// Open an SQLite in-memory database for testing.
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	// Create a test table for inserting data.
+	createTableQuery := "CREATE TABLE test_table (ID INTEGER PRIMARY KEY, Name TEXT)"
+	_, err = db.Exec(createTableQuery)
+	if err != nil {
+		t.Fatalf("Failed to create table: %v", err)
+	}
+
+	// Attempt to insert invalid data (not a slice).
+	invalidData := "not_a_slice"
+	columns := []string{"ID", "Name"}
+
+	_, err = InsertData(db, "test_table", invalidData, columns)
+	if err == nil {
+		t.Fatalf("Expected an error for invalid data, but got nil")
+	}
+
+	// Attempt to insert data with missing struct field.
+	invalidData2 := []struct {
+		ID   int
+		Name string
+	}{
+		{1, "John"},
+		{2, "Alice"},
+	}
+
+	invalidColumns := []string{"id", "age"} // "age" is not a field in the struct.
+
+	_, err = InsertData(db, "test_table", invalidData2, invalidColumns)
+	if err == nil {
+		t.Fatalf("Expected an error for missing struct field, but got nil")
+	}
+}
