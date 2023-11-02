@@ -22,7 +22,8 @@ func InsertData(db *sql.DB, tableName string, data interface{}, columns []string
 	}
 
 	// Construct the query with placeholders for columns
-	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", tableName, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
+	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", tableName, strings.Join(columns, ", "),
+		strings.Join(placeholders, ", "))
 
 	// Prepare the statement
 	stmt, err := db.Prepare(query)

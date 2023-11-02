@@ -33,7 +33,9 @@ Here's an overview of the project's directory structure:
 - `logs/`: Handles project logging.
   - `log.go`: Configures logging for the application.
 - `dataprocess/`: Handles project logging.
-  - `dataprocess.go`: Configures logging for the application.
+  - `dataprocess.go`: Prepare the data before insertion.
+   - `datageneration.go`: generate random data.
+
 
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:

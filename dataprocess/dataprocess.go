@@ -72,9 +72,6 @@ func ConsumeContactsInKafka(db *sql.DB) {
 	defer consumer.Close()
 	defer partitionConsumer.Close()
 	var contactsbatch []types.Contacts
-	// Define your batch size here
-
-	// Define a timer to periodically insert the batch into MySQL
 
 	for {
 
